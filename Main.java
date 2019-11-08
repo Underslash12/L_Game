@@ -2,6 +2,7 @@
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 
@@ -10,7 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 
-import java.awt.image.BufferedImage;
+import java.awt.Color;
 
 public class Main {
 	
@@ -19,40 +20,33 @@ public class Main {
 		JFrame frame = new JFrame("FrameDemo");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		// frame.getContentPane().add(emptyLabel, BorderLayout.CENTER);
-		TestPanel t = new TestPanel();
-		// Graphics g = frame.getGraphics();
-		// Graphics2D g2 = (Graphics2D) g.create();
-		// g2.fill(rect);
-		// g.fillRect(100, 100, 60, 80);
-		// Rectangle2D rect = new Rectangle2D.Double(100, 100, 60, 80);
-		// BufferedImage b = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
-		// Graphics2D g2d = (Graphics2D) b.getGraphics();
-		// g2d.fill(rect);
+		// JPanel bg = new JPanel();
+		// bg.setBackground(new Color(150, 150, 150));
+		// frame.getContentPane().add(bg);
 		
+		GridPanel t = new GridPanel();
 		frame.getContentPane().add(t);
-		//4. Size the frame.
-		frame.setSize(600, 600);
-
-		//5. Show it.
+	
+		frame.setSize(800 + 18, 800 + 47);
+		// frame.pack();
+		System.out.println(frame.getContentPane().getSize());
+		frame.getContentPane().setBackground(new Color(20, 150, 150));
+		
 		frame.setVisible(true);
-		// frame.getContentPane().paint(g2d);
 		
-		System.out.println(frame.getGraphics());
+		// sleep(2000);
 		
-		
-		// Graphics2D g2d = (Graphics2D) frame.getGraphics();
-		// Graphics2D g2d = t.getGraphics();
-		// g2d.fill(rect);
+		t.draw(true);
 
-		
-		
-		// int x = 0;
-		// while (x < 50000) {
-			// g2d.fill(rect);
-			// x++;
-		// }
-		// System.out.println("Done?");
-		// frame.repaint(1000, 0, 0, 600, 600);
+		// System.out.println(frame.getGraphics());
+	}
+	
+	public static void sleep(int ms)
+	{
+		try {
+			Thread.sleep(ms);
+		} catch (Exception e){
+			System.out.println(e);
+		}
 	}
 }
