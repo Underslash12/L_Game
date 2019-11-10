@@ -21,7 +21,8 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 	LPiece[] shadow = new LPiece[2];
 	LPiece[] tile = new LPiece[2];
 	
-	boolean[] isMoveable = new boolean[2];
+	boolean[] canMove = new boolean[2];
+	boolean[] canPlace = new boolean[2];
 	
 	int scrollSensitivity;
 	double scrollCounter;
@@ -73,6 +74,10 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		g2d.translate(xOffset, yOffset);
 		
 		if (draw) {
+			g2d.setColor(new Color(160, 160, 160));
+			g2d.fill(new Rectangle2D.Double(shadowDepth + xOffset, -shadowDepth + yOffset, 640 * scale, 640 * scale));
+			g2d.fill(new Rectangle2D.Double(-shadowDepth + xOffset, shadowDepth + yOffset, 640 * scale, 640 * scale));
+			
 			g2d.setColor(new Color(200, 200, 200));
 			Rectangle2D out1 = new Rectangle2D.Double(0 + xOffset, 0 + yOffset, 640 * scale, 640 * scale);
 			g2d.fill(out1);
@@ -94,26 +99,48 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		mainPiece[0].paintComponent(g2d);
 		mainPiece[1].paintComponent(g2d);
 		for (int i = 0; i < 2; i++) {
-			if (isMoveable[i]) {
-				tile[i].paintComponent(g2d);
+			if (canMove[i]) {
+				if (canPlace[i]) {
+					tile[i].paintComponent(g2d);
+				}
 				shadow[i].paintComponent(g2d);
 				mainPiece[i].paintComponent(g2d);
 			}
 		}
+		
+		// g2d.setColor(Color.BLACK);
+		// g2d.draw(mainPiece[0].getBoundingBox());
     }
 	
 	// Used mouse events
 	public void mouseMoved(MouseEvent e) 
 	{
-		// System.out.println("test1");
+		System.out.println(e.getX() + " " + e.getY());
 		for (int i = 0; i < 2; i++) {
-			if (isMoveable[i]) {
+			if (canMove[i]) {
 				mainPiece[i].translateTo(e.getX() - mainPiece[i].getCenterX(), e.getY() - mainPiece[i].getCenterY());
 				shadow[i].translateTo(mainPiece[i].getX() + shadowDepth, mainPiece[i].getY() - shadowDepth);
+				
 				tile[i].translateTo(
 					(36 + xOffset) + (int)((mainPiece[i].getX() + 20) / 145) * 145, 
 					(36 + yOffset) + (int)((mainPiece[i].getY() + 20) / 145) * 145
 				);
+				
+				// checks if the piece is in bounds
+				Rectangle2D tileBound = tile[i].getBoundingBox();
+				double maxX = tileBound.getX() + tileBound.getWidth();
+				double maxY = tileBound.getY() + tileBound.getHeight();
+				
+				if (tileBound.getX() >= 0 && tileBound.getY() >= 0 && maxX < 145 * 4 + 36 + xOffset && maxY < 145 * 4 + 36 + yOffset) {
+					canPlace[i] = true;
+				} else {
+					canPlace[i] = false;
+				}
+				
+				// System.out.println(LPiece.intersects(tile[i], mainPiece[1 - i]));
+				if (tile[i].intersects(mainPiece[1 - i])) {
+					canPlace[i] = false;
+				}
 			}
 		}
 		repaint();
@@ -125,23 +152,24 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		// picks and sets down the piece
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			for (int i = 0; i < 2; i++) {
-				if (!isMoveable[i]) {
+				if (!canMove[i]) {
 					if (mainPiece[i].contains(e.getX(), e.getY())) {
-						isMoveable[i] = true;
+						canMove[i] = true;
 					}
 				} else {
-					isMoveable[i] = false;
-					mainPiece[i].translateTo(tile[i].getX(), tile[i].getY());
+					if (canPlace[i]) {
+						canMove[i] = false;
+						mainPiece[i].translateTo(tile[i].getX(), tile[i].getY());
+					}
 				}
 			}
-			mouseMoved(e);
 		}
 		
 		// right click
 		// flips the piece horizontally
 		else if (SwingUtilities.isRightMouseButton(e)) {
 			for (int i = 0; i < 2; i++) {
-				if (isMoveable[i]) {
+				if (canMove[i]) {
 					mainPiece[i].flip();
 					shadow[i].flip();
 					tile[i].flip();
@@ -152,7 +180,7 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		// SwingUtilities.isMiddleMouseButton(e);
 		
 		// System.out.println("test3");
-		
+		mouseMoved(e);
 	}
 	
 	public void mouseWheelMoved(MouseWheelEvent e)
@@ -163,7 +191,7 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		// rotates piece on scroll
 		if (scrollCounter >= scrollSensitivity) {
 			for (int i = 0; i < 2; i++) {
-				if (isMoveable[i]) {
+				if (canMove[i]) {
 					int amountToRotate = e.getPreciseWheelRotation() > 0 ? 1 : 3;
 					
 					mainPiece[i].rotate90(amountToRotate);
@@ -176,7 +204,7 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 			scrollCounter = 0;
 		}
 		
-		
+		mouseMoved(e);
 	}
 	
 	

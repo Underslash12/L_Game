@@ -12,6 +12,9 @@ public class LPiece {
 	private Rectangle2D[] rects = new Rectangle2D[6];
 	private Color mainColor, secondaryColor;
 	private double scale;
+	
+	private int rotation;
+	private boolean flipped;
 
 	public LPiece (double x, double y, double scale, Color c)
 	{
@@ -32,6 +35,9 @@ public class LPiece {
 			c.getAlpha()
 		);
 		this.scale = scale;
+		
+		rotation = 0;
+		flipped = false;
 	}
 	
 	public double getX () 
@@ -52,6 +58,21 @@ public class LPiece {
 	public double getCenterY ()
 	{
 		return rects[0].getHeight() / 2;
+	}
+	
+	public Rectangle2D getBoundingBox ()
+	{
+		double x1 = rects[0].getX();
+		double x2 = rects[1].getX();
+		double y1 = rects[0].getY();
+		double y2 = rects[1].getY();
+		
+		return new Rectangle2D.Double(
+			Math.min(x1, x2),
+			Math.min(y1, y2),
+			Math.max(x1 + rects[0].getWidth(), x2 + rects[1].getWidth()) - Math.min(x1, x2),
+			Math.max(y1 + rects[0].getHeight(), y2 + rects[1].getHeight()) - Math.min(y1, y2)
+		);
 	}
 	
 	public Color getColor ()
@@ -79,6 +100,8 @@ public class LPiece {
 				);
 			}
 		}
+		
+		rotation += times;
 	}
 	
 	// rotate 90 degrees formula is (x, y) -> (-(y - b) + a, (x - a) + b)
@@ -97,6 +120,8 @@ public class LPiece {
 				rects[i].getY() + rects[i].getHeight()
 			);
 		}
+		
+		flipped = !flipped;
 	}
 	
 	private Rectangle2D createRectangleFromPoints(double x1, double y1, double x2, double y2)
@@ -118,6 +143,69 @@ public class LPiece {
 		}
 		return false;
 	}
+	
+	
+	public boolean intersects (LPiece p)
+	{
+		double cx = getCenterX() + getX();
+		double cy = getCenterY() + getY();
+		
+		boolean horizontal = rotation % 2 == 1;
+		
+		boolean isLeft = flipped;
+		
+		// checks if center square is inside p
+		if (p.contains(cx, cy)) {
+			return true;
+		}
+		
+		// checks if above and below squares are inside p
+		if (horizontal) {
+			if (p.contains(cx - 145, cy) || p.contains(cx + 145, cy)) {
+				return true;
+			}
+		} else {
+			if (p.contains(cx, cy - 145) || p.contains(cx, cy + 145)) {
+				return true;
+			}
+		} 
+		
+		// checks if sticking out bit is inside p
+		if (p.contains(rects[1].getWidth() / 2 + rects[1].getX(), rects[1].getHeight() / 2 + rects[1].getY())) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	// checks if two pieces intersect
+	// checks if the centers of each intersect with the other piece
+	// public static boolean intersects (LPiece... p) 
+	// {
+		// for (int i = 0; i < 2; i++) {
+			// System.out.println(i + " " + (1 - i));
+			// double cx = p[1 - i].getCenterX() + p[1 - i].getX();
+			// double cy = p[1 - i].getCenterY() + p[1 - i].getY();
+			// boolean isHorizontal = false;
+			// if (p[1 - i].getBoundingBox().getWidth() > p[1 - i].getBoundingBox().getHeight()) {
+				// System.out.println("Horizontal");
+				// isHorizontal = true;
+			// }
+			// System.out.println(p[i].contains(cx, cy) + " " + cx + " " + cy);
+			// if (p[i].contains(cx, cy))
+				// return true;
+			// if (isHorizontal) {
+				// if (p[i].contains(cx - 145, cy) || p[i].contains(cx + 145, cy)) {
+					// return true;
+				// }
+			// } else {
+				// if (p[i].contains(cx, cy - 145) || p[i].contains(cx, cy + 145)) {
+					// return true;
+				// }
+			// }
+		// }
+		// return false;
+	// }
 	
 	public void translate (double dx, double dy)
 	{
