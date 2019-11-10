@@ -12,12 +12,16 @@ import java.awt.event.*;
 public class GridPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener{
 	
 	boolean draw = false;
-	// Rectangle2D[] orangeLMain = new Rectangle2D[4];
-	// Rectangle2D[] orangeLHelper;
-	LPiece orange, orangeShadow, orangeTile;
-	LPiece blue, blueShadow, blueTile;
+	// Rectangle2D[] mainPiece[0]LMain = new Rectangle2D[4];
+	// Rectangle2D[] mainPiece[0]LHelper;
+	// LPiece mainPiece[0], shadow[0], tile[0];
+	// LPiece mainPiece[1], shadow[1], tile[1];
 	
-	boolean isOrangeMoveable, isBlueMoveable;
+	LPiece[] mainPiece = new LPiece[2];
+	LPiece[] shadow = new LPiece[2];
+	LPiece[] tile = new LPiece[2];
+	
+	boolean[] isMoveable = new boolean[2];
 	
 	int scrollSensitivity;
 	double scrollCounter;
@@ -47,26 +51,25 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		scrollSensitivity = 2;
 		scrollCounter = 0;
 		
-		// orange pieces
-		orange = new LPiece(181, 181, scale, new Color(255, 144, 33));
-		orangeShadow = new LPiece(181 + shadowDepth, 181 - shadowDepth, scale, new Color(237, 134, 0)); //hmmm
-		orangeTile = new LPiece(181, 181, scale, new Color(255, 179, 97));
+		// orange pieces [0]
+		mainPiece[0] = new LPiece(181, 181, scale, new Color(255, 144, 33));
+		shadow[0] = new LPiece(181 + shadowDepth, 181 - shadowDepth, scale, new Color(237, 134, 0)); //hmmm
+		tile[0] = new LPiece(181, 181, scale, new Color(255, 179, 97));
 		
-		// blue pieces
-		blue = new LPiece(181 + 145, 181 - 145, scale, new Color(0, 87, 237));
-		blueShadow = new LPiece(181 + 145 + shadowDepth, 181 - 145 - shadowDepth, scale, new Color(0, 68, 186)); //hmmm
-		blueTile = new LPiece(181 + 145, 181 - 145, scale, new Color(130, 199, 255));
-		blue.rotate90(2);
-		blueShadow.rotate90(2);
-		blueTile.rotate90(2);
+		// blue pieces [1]
+		mainPiece[1] = new LPiece(181 + 145, 181 - 145, scale, new Color(0, 87, 237));
+		shadow[1] = new LPiece(181 + 145 + shadowDepth, 181 - 145 - shadowDepth, scale, new Color(0, 68, 186)); //hmmm
+		tile[1] = new LPiece(181 + 145, 181 - 145, scale, new Color(130, 199, 255));
+		mainPiece[1].rotate90(2);
+		shadow[1].rotate90(2);
+		tile[1].rotate90(2);
 	}
 	
 	@Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+		
         Graphics2D g2d = (Graphics2D) g;
-		
-		
 		g2d.translate(xOffset, yOffset);
 		
 		if (draw) {
@@ -86,39 +89,32 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 				}
 			}
 		}
-		if (isOrangeMoveable) {
-			orangeTile.paintComponent(g2d);
-			orangeShadow.paintComponent(g2d);
-		} else if (isBlueMoveable) {
-			blueTile.paintComponent(g2d);
-			blueShadow.paintComponent(g2d);
-		}
-		orange.paintComponent(g2d);
-		blue.paintComponent(g2d);
-		if (isOrangeMoveable) {
-			orange.paintComponent(g2d);
-		}
 		
+		// Hopefully deals with overlappage
+		mainPiece[0].paintComponent(g2d);
+		mainPiece[1].paintComponent(g2d);
+		for (int i = 0; i < 2; i++) {
+			if (isMoveable[i]) {
+				tile[i].paintComponent(g2d);
+				shadow[i].paintComponent(g2d);
+				mainPiece[i].paintComponent(g2d);
+			}
+		}
     }
 	
 	// Used mouse events
 	public void mouseMoved(MouseEvent e) 
 	{
 		// System.out.println("test1");
-		if (isOrangeMoveable) {
-			orange.translateTo(e.getX() - orange.getCenterX(), e.getY() - orange.getCenterY());
-			orangeShadow.translateTo(orange.getX() + shadowDepth, orange.getY() - shadowDepth);
-			orangeTile.translateTo(
-				(36 + xOffset) + (int)((orange.getX() + 20) / 145) * 145, 
-				(36 + yOffset) + (int)((orange.getY() + 20) / 145) * 145
-			);
-		} else if (isBlueMoveable) {
-			blue.translateTo(e.getX() - blue.getCenterX(), e.getY() - blue.getCenterY());
-			blueShadow.translateTo(blue.getX() + shadowDepth, blue.getY() - shadowDepth);
-			blueTile.translateTo(
-				(36 + xOffset) + (int)((blue.getX() + 20) / 145) * 145, 
-				(36 + yOffset) + (int)((blue.getY() + 20) / 145) * 145
-			);
+		for (int i = 0; i < 2; i++) {
+			if (isMoveable[i]) {
+				mainPiece[i].translateTo(e.getX() - mainPiece[i].getCenterX(), e.getY() - mainPiece[i].getCenterY());
+				shadow[i].translateTo(mainPiece[i].getX() + shadowDepth, mainPiece[i].getY() - shadowDepth);
+				tile[i].translateTo(
+					(36 + xOffset) + (int)((mainPiece[i].getX() + 20) / 145) * 145, 
+					(36 + yOffset) + (int)((mainPiece[i].getY() + 20) / 145) * 145
+				);
+			}
 		}
 		repaint();
     }
@@ -128,24 +124,15 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		// left click
 		// picks and sets down the piece
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			// orange
-			if (!isOrangeMoveable) {
-				if (orange.contains(e.getX(), e.getY())) {
-					isOrangeMoveable = true;
+			for (int i = 0; i < 2; i++) {
+				if (!isMoveable[i]) {
+					if (mainPiece[i].contains(e.getX(), e.getY())) {
+						isMoveable[i] = true;
+					}
+				} else {
+					isMoveable[i] = false;
+					mainPiece[i].translateTo(tile[i].getX(), tile[i].getY());
 				}
-			} else {
-				isOrangeMoveable = false;
-				orange.translateTo(orangeTile.getX(), orangeTile.getY());
-			}
-			
-			// blue
-			if (!isBlueMoveable) {
-				if (blue.contains(e.getX(), e.getY())) {
-					isBlueMoveable = true;
-				}
-			} else {
-				isBlueMoveable = false;
-				blue.translateTo(blueTile.getX(), blueTile.getY());
 			}
 			mouseMoved(e);
 		}
@@ -153,14 +140,12 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		// right click
 		// flips the piece horizontally
 		else if (SwingUtilities.isRightMouseButton(e)) {
-			if (isOrangeMoveable) {
-				orange.flip();
-				orangeShadow.flip();
-				orangeTile.flip();
-			} else if (isBlueMoveable){
-				blue.flip();
-				blueShadow.flip();
-				blueTile.flip();
+			for (int i = 0; i < 2; i++) {
+				if (isMoveable[i]) {
+					mainPiece[i].flip();
+					shadow[i].flip();
+					tile[i].flip();
+				}
 			}
 			repaint();
 		}
@@ -177,16 +162,17 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		
 		// rotates piece on scroll
 		if (scrollCounter >= scrollSensitivity) {
-			if (isOrangeMoveable) {
-				int amountToRotate = e.getPreciseWheelRotation() > 0 ? 1 : 3;
-				
-				orange.rotate90(amountToRotate);
-				orangeShadow.rotate90(amountToRotate);
-				orangeTile.rotate90(amountToRotate);
-				
-				repaint();
+			for (int i = 0; i < 2; i++) {
+				if (isMoveable[i]) {
+					int amountToRotate = e.getPreciseWheelRotation() > 0 ? 1 : 3;
+					
+					mainPiece[i].rotate90(amountToRotate);
+					shadow[i].rotate90(amountToRotate);
+					tile[i].rotate90(amountToRotate);
+					
+					repaint();
+				}
 			}
-			
 			scrollCounter = 0;
 		}
 		
