@@ -25,7 +25,15 @@ public class Main {
 		// frame.getContentPane().add(bg);
 		
 		GridPanel t = new GridPanel();
+		// t.setOpaque(true);
+		// t.setBackground(new Color(0,0,0,0));
 		frame.getContentPane().add(t);
+		t.draw(true);
+		
+		// MouseControl m = new MouseControl();
+		// m.setOpaque(true);
+		// m.setBackground(new Color(0,0,0,0));
+		// frame.getContentPane().add(m);
 	
 		frame.setSize(800 + 18, 800 + 47);
 		// frame.pack();
@@ -36,7 +44,8 @@ public class Main {
 		
 		// sleep(2000);
 		
-		t.draw(true);
+		// m.setOpaque(false);
+		// m.repaint();
 
 		// System.out.println(frame.getGraphics());
 	}
