@@ -9,16 +9,28 @@ import java.awt.Graphics2D;
 
 public class LPiece {
 
-	private Rectangle2D[] rects = new Rectangle2D[2];
-	private Color color;
+	private Rectangle2D[] rects = new Rectangle2D[6];
+	private Color mainColor, secondaryColor;
 	private double scale;
 
 	public LPiece (double x, double y, double scale, Color c)
 	{
 		// rects[0] = new Rectangle2D.Double(x, y, 109 * scale, 399 * scale);
 		rects[0] = new Rectangle2D.Double(x, y, 129 * scale, 419 * scale);
-		rects[1] = new Rectangle2D.Double(x + 129, y + 419 - 129, (129 + 16) * scale, 129 * scale);
-		color = c;
+		rects[1] = new Rectangle2D.Double(x + 129, y + 290, 145 * scale, 129 * scale);
+		
+		rects[2] = new Rectangle2D.Double(x + 10, y + 10, 109 * scale, 399 * scale);
+		rects[3] = new Rectangle2D.Double(x + 119, y + 300, 145 * scale, 109 * scale);
+		
+		rects[4] = new Rectangle2D.Double(x + 20, y + 20, 89 * scale, 379 * scale);
+		rects[5] = new Rectangle2D.Double(x + 109, y + 310, 145 * scale, 89 * scale);
+		mainColor = c;
+		secondaryColor = new Color(
+			c.getRed() + 25 > 255 ? 255 : c.getRed() + 25, 
+			c.getGreen() + 25 > 255 ? 255 : c.getGreen() + 25, 
+			c.getBlue() + 25 > 255 ? 255 : c.getBlue() + 25,
+			c.getAlpha()
+		);
 		this.scale = scale;
 	}
 	
@@ -40,6 +52,11 @@ public class LPiece {
 	public double getCenterY ()
 	{
 		return rects[0].getHeight() / 2;
+	}
+	
+	public Color getColor ()
+	{
+		return mainColor;
 	}
 	
 	public void rotate90 (int times)
@@ -80,13 +97,6 @@ public class LPiece {
 				rects[i].getY() + rects[i].getHeight()
 			);
 		}
-		// double x = rects[0].getX();
-		// double x2 = rects[1].getX();
-		// double w = rects[0].getWidth();
-		// double w2 = rects[1].getWidth();
-		// double newX = 0;
-		// newX = x > x2 ? w + w2 : -w - w2;
-		// rects[1] = new Rectangle2D.Double(rects[1].getX() + newX, rects[1].getY(), rects[1].getWidth(), rects[1].getHeight());
 	}
 	
 	private Rectangle2D createRectangleFromPoints(double x1, double y1, double x2, double y2)
@@ -135,11 +145,27 @@ public class LPiece {
 		}
 	}
 	
+	public void setColor (Color c)
+	{
+		mainColor = c;
+		secondaryColor = new Color(
+			c.getRed() + 25 > 255 ? 255 : c.getRed() + 25, 
+			c.getGreen() + 25 > 255 ? 255 : c.getGreen() + 25, 
+			c.getBlue() + 25 > 255 ? 255 : c.getBlue() + 25,
+			c.getAlpha()
+		);
+	}
+	
 	public void paintComponent (Graphics2D g2d)
 	{
-		g2d.setColor(color);
-		for (Rectangle2D r : rects) {
-			g2d.fill(r);
+		g2d.setColor(mainColor);
+		for (int i = 0; i < rects.length; i++) {
+			if (i == 2) {
+				g2d.setColor(secondaryColor);
+			} else if (i == 4) {
+				g2d.setColor(mainColor);
+			}
+			g2d.fill(rects[i]);
 		}
 	}
 	
