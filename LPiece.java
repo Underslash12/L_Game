@@ -27,6 +27,7 @@ public class LPiece {
 		
 		rects[4] = new Rectangle2D.Double(x + 20, y + 20, 89 * scale, 379 * scale);
 		rects[5] = new Rectangle2D.Double(x + 109, y + 310, 145 * scale, 89 * scale);
+		
 		mainColor = c;
 		secondaryColor = new Color(
 			c.getRed() + 25 > 255 ? 255 : c.getRed() + 25, 
@@ -50,14 +51,29 @@ public class LPiece {
 		return rects[0].getY();
 	}
 	
+	public double getWidth ()
+	{
+		return rects[0].getWidth();
+	}
+	
+	public double getHeight ()
+	{
+		return rects[0].getHeight();
+	}
+	
 	public double getCenterX ()
 	{
-		return rects[0].getWidth() / 2;
+		return rects[0].getWidth() / 2 + getX();
 	}
 	
 	public double getCenterY ()
 	{
-		return rects[0].getHeight() / 2;
+		return rects[0].getHeight() / 2 + getY();
+	}
+	
+	public Color getColor ()
+	{
+		return mainColor;
 	}
 	
 	public Rectangle2D getBoundingBox ()
@@ -75,11 +91,6 @@ public class LPiece {
 		);
 	}
 	
-	public Color getColor ()
-	{
-		return mainColor;
-	}
-	
 	public void rotate90 (int times)
 	{
 		for (int i = 0; i < times; i++) {
@@ -89,8 +100,8 @@ public class LPiece {
 						x2 = rects[j].getX() + rects[j].getWidth(),
 						y2 = rects[j].getY() + rects[j].getHeight();
 				
-				double[] p1 = rotate90Point(x1, y1, getCenterX() + getX(), getCenterY() + getY());
-				double[] p2 = rotate90Point(x2, y2, getCenterX() + getX(), getCenterY() + getY());
+				double[] p1 = rotate90Point(x1, y1, getCenterX(), getCenterY());
+				double[] p2 = rotate90Point(x2, y2, getCenterX(), getCenterY());
 				
 				rects[j] = createRectangleFromPoints(
 					p1[0],
@@ -114,9 +125,9 @@ public class LPiece {
 	{
 		for (int i = 0; i < rects.length; i++) {
 			rects[i] = createRectangleFromPoints(
-				-(rects[i].getX() - (getCenterX() + getX())) + (getCenterX() + getX()),
+				getCenterX() * 2 - rects[i].getX(),
 				rects[i].getY(),
-				-(rects[i].getX() + rects[i].getWidth() - (getCenterX() + getX())) + (getCenterX() + getX()),
+				getCenterX() * 2 - rects[i].getX() - rects[i].getWidth(),
 				rects[i].getY() + rects[i].getHeight()
 			);
 		}
@@ -147,8 +158,8 @@ public class LPiece {
 	
 	public boolean intersects (LPiece p)
 	{
-		double cx = getCenterX() + getX();
-		double cy = getCenterY() + getY();
+		double cx = getCenterX();
+		double cy = getCenterY();
 		
 		boolean horizontal = rotation % 2 == 1;
 		
@@ -177,35 +188,6 @@ public class LPiece {
 		
 		return false;
 	}
-	
-	// checks if two pieces intersect
-	// checks if the centers of each intersect with the other piece
-	// public static boolean intersects (LPiece... p) 
-	// {
-		// for (int i = 0; i < 2; i++) {
-			// System.out.println(i + " " + (1 - i));
-			// double cx = p[1 - i].getCenterX() + p[1 - i].getX();
-			// double cy = p[1 - i].getCenterY() + p[1 - i].getY();
-			// boolean isHorizontal = false;
-			// if (p[1 - i].getBoundingBox().getWidth() > p[1 - i].getBoundingBox().getHeight()) {
-				// System.out.println("Horizontal");
-				// isHorizontal = true;
-			// }
-			// System.out.println(p[i].contains(cx, cy) + " " + cx + " " + cy);
-			// if (p[i].contains(cx, cy))
-				// return true;
-			// if (isHorizontal) {
-				// if (p[i].contains(cx - 145, cy) || p[i].contains(cx + 145, cy)) {
-					// return true;
-				// }
-			// } else {
-				// if (p[i].contains(cx, cy - 145) || p[i].contains(cx, cy + 145)) {
-					// return true;
-				// }
-			// }
-		// }
-		// return false;
-	// }
 	
 	public void translate (double dx, double dy)
 	{

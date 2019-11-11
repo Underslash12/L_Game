@@ -12,17 +12,24 @@ import java.awt.event.*;
 public class GridPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener{
 	
 	boolean draw = false;
-	// Rectangle2D[] mainPiece[0]LMain = new Rectangle2D[4];
-	// Rectangle2D[] mainPiece[0]LHelper;
-	// LPiece mainPiece[0], shadow[0], tile[0];
-	// LPiece mainPiece[1], shadow[1], tile[1];
+	// Rectangle2D[] mainLPiece[0]LMain = new Rectangle2D[4];
+	// Rectangle2D[] mainLPiece[0]LHelper;
+	// LPiece mainLPiece[0], LShadow[0], LTile[0];
+	// LPiece mainLPiece[1], LShadow[1], LTile[1];
 	
-	LPiece[] mainPiece = new LPiece[2];
-	LPiece[] shadow = new LPiece[2];
-	LPiece[] tile = new LPiece[2];
+	LPiece[] mainLPiece = new LPiece[2];
+	LPiece[] LShadow = new LPiece[2];
+	LPiece[] LTile = new LPiece[2];
 	
-	boolean[] canMove = new boolean[2];
-	boolean[] canPlace = new boolean[2];
+	NPiece[] mainNPiece = new NPiece[2];
+	NPiece[] nShadow = new NPiece[2];
+	NPiece[] nTile = new NPiece[2];
+	
+	boolean[] LCanMove = new boolean[2];
+	boolean[] LCanPlace = new boolean[2];
+	
+	boolean[] nCanMove = new boolean[2];
+	boolean[] nCanPlace = new boolean[2];
 	
 	int scrollSensitivity;
 	double scrollCounter;
@@ -53,17 +60,27 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		scrollCounter = 0;
 		
 		// orange pieces [0]
-		mainPiece[0] = new LPiece(181, 181, scale, new Color(255, 144, 33));
-		shadow[0] = new LPiece(181 + shadowDepth, 181 - shadowDepth, scale, new Color(237, 134, 0)); //hmmm
-		tile[0] = new LPiece(181, 181, scale, new Color(255, 179, 97));
+		mainLPiece[0] = new LPiece(181, 181, scale, new Color(255, 144, 33));
+		LShadow[0] = new LPiece(181 + shadowDepth, 181 - shadowDepth, scale, new Color(237, 134, 0)); //hmmm
+		LTile[0] = new LPiece(181, 181, scale, new Color(255, 179, 97));
 		
 		// blue pieces [1]
-		mainPiece[1] = new LPiece(181 + 145, 181 - 145, scale, new Color(0, 87, 237));
-		shadow[1] = new LPiece(181 + 145 + shadowDepth, 181 - 145 - shadowDepth, scale, new Color(0, 68, 186)); //hmmm
-		tile[1] = new LPiece(181 + 145, 181 - 145, scale, new Color(130, 199, 255));
-		mainPiece[1].rotate90(2);
-		shadow[1].rotate90(2);
-		tile[1].rotate90(2);
+		mainLPiece[1] = new LPiece(181 + 145, 181 - 145, scale, new Color(0, 87, 237));
+		LShadow[1] = new LPiece(181 + 145 + shadowDepth, 181 - 145 - shadowDepth, scale, new Color(0, 68, 186)); //hmmm
+		LTile[1] = new LPiece(181 + 145, 181 - 145, scale, new Color(130, 199, 255));
+		mainLPiece[1].rotate90(2);
+		LShadow[1].rotate90(2);
+		LTile[1].rotate90(2);
+		
+		// neutral pieces
+		mainNPiece[0] = new NPiece(181 - 145 + 10, 181 - 145 + 10, 1, Color.GRAY);
+		nShadow[0] = new NPiece(181 - 145 + 10 + shadowDepth, 181 - 145 + 10 - shadowDepth, 1, Color.DARK_GRAY);
+		nTile[0] = new NPiece(181 - 145 + 10, 181 - 145 + 10, 1, Color.LIGHT_GRAY);
+		
+		mainNPiece[1] = new NPiece(181 + 2 * 145 + 10, 181 + 2 * 145 + 10, 1, Color.GRAY);
+		nShadow[1] = new NPiece(181 + 2 * 145 + 10 + shadowDepth, 181 + 2 * 145 + 10 - shadowDepth, 1, Color.DARK_GRAY);
+		nTile[1] = new NPiece(181 + 2 * 145 + 10, 181 + 2 * 145 + 10, 1, Color.LIGHT_GRAY);
+		
 	}
 	
 	@Override
@@ -96,55 +113,138 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		}
 		
 		// Hopefully deals with overlappage
-		mainPiece[0].paintComponent(g2d);
-		mainPiece[1].paintComponent(g2d);
+		mainLPiece[0].paintComponent(g2d);
+		mainLPiece[1].paintComponent(g2d);
+		mainNPiece[0].paintComponent(g2d);
+		mainNPiece[1].paintComponent(g2d);
 		for (int i = 0; i < 2; i++) {
-			if (canMove[i]) {
-				if (canPlace[i]) {
-					tile[i].paintComponent(g2d);
+			// LPieces
+			if (LCanMove[i]) {
+				if (LCanPlace[i]) {
+					LTile[i].paintComponent(g2d);
 				}
-				shadow[i].paintComponent(g2d);
-				mainPiece[i].paintComponent(g2d);
+				LShadow[i].paintComponent(g2d);
+				mainLPiece[i].paintComponent(g2d);
+			}
+			
+			// NPieces
+			if (nCanMove[i]) {
+				if (nCanPlace[i]) {
+					nTile[i].paintComponent(g2d);
+				}
+				nShadow[i].paintComponent(g2d);
+				mainNPiece[i].paintComponent(g2d);
 			}
 		}
 		
+		
+		// for (int i = 0; i < 2; i++) {
+			
+		// }
+		// if (nCanMove[0]) {
+			// nTile[0].paintComponent(g2d);
+			// nShadow[0].paintComponent(g2d);
+		// }
+		// mainNPiece[0].paintComponent(g2d);
+		
 		// g2d.setColor(Color.BLACK);
-		// g2d.draw(mainPiece[0].getBoundingBox());
+		// g2d.draw(mainLPiece[0].getBoundingBox());
     }
 	
 	// Used mouse events
 	public void mouseMoved(MouseEvent e) 
 	{
+		
+		// mainLPiece[i].translateTo(e.getX() - mainLPiece[i].getCenterX(), e.getY() - mainLPiece[i].getCenterY());
+		// LShadow[i].translateTo(mainLPiece[i].getX() + shadowDepth, mainLPiece[i].getY() - shadowDepth);
+		
 		System.out.println(e.getX() + " " + e.getY());
 		for (int i = 0; i < 2; i++) {
-			if (canMove[i]) {
-				mainPiece[i].translateTo(e.getX() - mainPiece[i].getCenterX(), e.getY() - mainPiece[i].getCenterY());
-				shadow[i].translateTo(mainPiece[i].getX() + shadowDepth, mainPiece[i].getY() - shadowDepth);
+			// for each LPiece
+			if (LCanMove[i]) {
+				mainLPiece[i].translateTo(e.getX() - mainLPiece[i].getWidth() / 2, e.getY() - mainLPiece[i].getHeight() / 2);
+				LShadow[i].translateTo(mainLPiece[i].getX() + shadowDepth, mainLPiece[i].getY() - shadowDepth);
 				
-				tile[i].translateTo(
-					(36 + xOffset) + (int)((mainPiece[i].getX() + 20) / 145) * 145, 
-					(36 + yOffset) + (int)((mainPiece[i].getY() + 20) / 145) * 145
+				LTile[i].translateTo(
+					(36 + xOffset) + (int)((mainLPiece[i].getX() + 20) / 145) * 145, 
+					(36 + yOffset) + (int)((mainLPiece[i].getY() + 20) / 145) * 145
 				);
 				
+			/** Make seperate method {*/
 				// checks if the piece is in bounds
-				Rectangle2D tileBound = tile[i].getBoundingBox();
+				Rectangle2D tileBound = LTile[i].getBoundingBox();
 				double maxX = tileBound.getX() + tileBound.getWidth();
 				double maxY = tileBound.getY() + tileBound.getHeight();
 				
+				LCanPlace[i] = false;
+				// inbounds
 				if (tileBound.getX() >= 0 && tileBound.getY() >= 0 && maxX < 145 * 4 + 36 + xOffset && maxY < 145 * 4 + 36 + yOffset) {
-					canPlace[i] = true;
-				} else {
-					canPlace[i] = false;
+					// intersects other LPiece
+					if (!(LTile[i].intersects(mainLPiece[1 - i]))) {
+						// intersects each NPiece
+						boolean intersects = false;
+						for (int j = 0; j < 2; j++) {
+							if (LTile[i].contains(nTile[j].getCenterX(), nTile[j].getCenterY())) {
+								intersects = true;
+								break;
+							}
+						}
+						LCanPlace[i] = !intersects;
+					}
 				}
+			/** }*/
+			}
+			
+			// for each NPiece
+			if (nCanMove[i]) {
+				mainNPiece[i].translateTo(e.getX() - mainNPiece[i].getWidth() / 2, e.getY() - mainNPiece[i].getHeight() / 2);
+				nShadow[i].translateTo(mainNPiece[i].getX() + shadowDepth, mainNPiece[i].getY() - shadowDepth);
 				
-				// System.out.println(LPiece.intersects(tile[i], mainPiece[1 - i]));
-				if (tile[i].intersects(mainPiece[1 - i])) {
-					canPlace[i] = false;
+				nTile[i].translateTo(
+					(36 + xOffset + 10) + (int)((mainNPiece[i].getX() + 20) / 145) * 145, 
+					(36 + yOffset + 10) + (int)((mainNPiece[i].getY() + 20) / 145) * 145
+				);
+				
+				nCanPlace[i] = false;
+				// checks if in bounds
+				if (
+					nTile[i].getX() >= 0 && 
+					nTile[i].getY() >= 0 && 
+					nTile[i].getX() + nTile[i].getWidth() < 145 * 4 + 36 + xOffset && 
+					nTile[i].getY() + nTile[i].getHeight() < 145 * 4 + 36 + yOffset
+				) {
+					// nCanPlace[i] = true;
+					
+					// intersects with other NPiece
+					if (!nTile[i].intersects(mainNPiece[1 - i])) {
+						
+						// 
+						// intersects with each LPiece
+						boolean intersects = false;
+						for (int j = 0; j < 2; j++) {
+							if (LTile[j].contains(nTile[i].getCenterX(), nTile[i].getCenterY())) {
+								intersects = true;
+								break;
+							}
+						}
+						
+						nCanPlace[i] = !intersects;
+					}
+					
+					else {
+						System.out.println("Intersects");
+					}
+					
 				}
 			}
 		}
 		repaint();
     }
+	
+	// public boolean valid (LPiece p) 
+	// {
+		
+	// }
 	
 	public void mousePressed(MouseEvent e) 
 	{
@@ -152,14 +252,27 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		// picks and sets down the piece
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			for (int i = 0; i < 2; i++) {
-				if (!canMove[i]) {
-					if (mainPiece[i].contains(e.getX(), e.getY())) {
-						canMove[i] = true;
+				// for each LPiece
+				if (!LCanMove[i] && !LCanMove[1 - i] && !nCanMove[i] && !nCanMove[1 - i]) {
+					if (mainLPiece[i].contains(e.getX(), e.getY())) {
+						LCanMove[i] = true;
 					}
 				} else {
-					if (canPlace[i]) {
-						canMove[i] = false;
-						mainPiece[i].translateTo(tile[i].getX(), tile[i].getY());
+					if (LCanPlace[i]) {
+						LCanMove[i] = false;
+						mainLPiece[i].translateTo(LTile[i].getX(), LTile[i].getY());
+					}
+				}
+				
+				// for each NPiece
+				if (!LCanMove[i] && !LCanMove[1 - i] && !nCanMove[i] && !nCanMove[1 - i]) {
+					if (mainNPiece[i].contains(e.getX(), e.getY())) {
+						nCanMove[i] = true;
+					}
+				} else {
+					if (nCanPlace[i]) {
+						nCanMove[i] = false;
+						mainNPiece[i].translateTo(nTile[i].getX(), nTile[i].getY());
 					}
 				}
 			}
@@ -169,10 +282,10 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		// flips the piece horizontally
 		else if (SwingUtilities.isRightMouseButton(e)) {
 			for (int i = 0; i < 2; i++) {
-				if (canMove[i]) {
-					mainPiece[i].flip();
-					shadow[i].flip();
-					tile[i].flip();
+				if (LCanMove[i]) {
+					mainLPiece[i].flip();
+					LShadow[i].flip();
+					LTile[i].flip();
 				}
 			}
 			repaint();
@@ -191,12 +304,12 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 		// rotates piece on scroll
 		if (scrollCounter >= scrollSensitivity) {
 			for (int i = 0; i < 2; i++) {
-				if (canMove[i]) {
+				if (LCanMove[i]) {
 					int amountToRotate = e.getPreciseWheelRotation() > 0 ? 1 : 3;
 					
-					mainPiece[i].rotate90(amountToRotate);
-					shadow[i].rotate90(amountToRotate);
-					tile[i].rotate90(amountToRotate);
+					mainLPiece[i].rotate90(amountToRotate);
+					LShadow[i].rotate90(amountToRotate);
+					LTile[i].rotate90(amountToRotate);
 					
 					repaint();
 				}
