@@ -2,12 +2,11 @@
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
-// import java.awt.geom.Point2D.Double;
 import java.awt.geom.Rectangle2D;
-// import java.awt.geom.Rectangle2D.Double;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 
-public class LPiece {
+public class LPiece implements Piece {
 
 	private Rectangle2D[] rects = new Rectangle2D[6];
 	private Color mainColor, secondaryColor;
@@ -18,16 +17,17 @@ public class LPiece {
 
 	public LPiece (double x, double y, double scale, Color c)
 	{
-		// rects[0] = new Rectangle2D.Double(x, y, 109 * scale, 399 * scale);
+		// main portion
 		rects[0] = new Rectangle2D.Double(x, y, 129 * scale, 419 * scale);
-		rects[1] = new Rectangle2D.Double(x + 129, y + 290, 145 * scale, 129 * scale);
-		
 		rects[2] = new Rectangle2D.Double(x + 10, y + 10, 109 * scale, 399 * scale);
-		rects[3] = new Rectangle2D.Double(x + 119, y + 300, 145 * scale, 109 * scale);
-		
 		rects[4] = new Rectangle2D.Double(x + 20, y + 20, 89 * scale, 379 * scale);
+		
+		// part that sticks out
+		rects[1] = new Rectangle2D.Double(x + 129, y + 290, 145 * scale, 129 * scale);
+		rects[3] = new Rectangle2D.Double(x + 119, y + 300, 145 * scale, 109 * scale);
 		rects[5] = new Rectangle2D.Double(x + 109, y + 310, 145 * scale, 89 * scale);
 		
+		// colors
 		mainColor = c;
 		secondaryColor = new Color(
 			c.getRed() + 25 > 255 ? 255 : c.getRed() + 25, 
@@ -156,36 +156,40 @@ public class LPiece {
 	}
 	
 	
-	public boolean intersects (LPiece p)
+	public ArrayList<Point2D> getCenters ()
 	{
+		ArrayList<Point2D> centers = new ArrayList<Point2D>();
+		
 		double cx = getCenterX();
 		double cy = getCenterY();
+				
+		// center
+		centers.add(new Point2D.Double(cx, cy));
 		
-		boolean horizontal = rotation % 2 == 1;
-		
-		boolean isLeft = flipped;
-		
-		// checks if center square is inside p
-		if (p.contains(cx, cy)) {
-			return true;
-		}
-		
-		// checks if above and below squares are inside p
-		if (horizontal) {
-			if (p.contains(cx - 145, cy) || p.contains(cx + 145, cy)) {
-				return true;
-			}
+		// surrounding center
+		if (rotation % 2 == 1) {
+			centers.add(new Point2D.Double(cx - 145, cy));
+			centers.add(new Point2D.Double(cx + 145, cy));
 		} else {
-			if (p.contains(cx, cy - 145) || p.contains(cx, cy + 145)) {
-				return true;
-			}
+			centers.add(new Point2D.Double(cx, cy - 145));
+			centers.add(new Point2D.Double(cx, cy + 145));
 		} 
 		
-		// checks if sticking out bit is inside p
-		if (p.contains(rects[1].getWidth() / 2 + rects[1].getX(), rects[1].getHeight() / 2 + rects[1].getY())) {
-			return true;
-		}
+		// extra piece
+		centers.add(new Point2D.Double(rects[1].getX() + rects[1].getWidth() / 2, rects[1].getY() + rects[1].getHeight() / 2));
 		
+		return centers;
+	}
+	
+	// same in NPiece
+	public boolean intersects (Piece p)
+	{
+		boolean intersects = false;
+		for (Point2D p2d : p.getCenters()) {
+			if (contains(p2d.getX(), p2d.getY())) {
+				return true;
+			}
+		}
 		return false;
 	}
 	

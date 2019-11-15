@@ -9,13 +9,9 @@ import java.awt.geom.Rectangle2D.Double;
 import java.awt.Color;
 import java.awt.event.*;
 
-public class GridPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener{
+public class GridPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener {
 	
 	boolean draw = false;
-	// Rectangle2D[] mainLPiece[0]LMain = new Rectangle2D[4];
-	// Rectangle2D[] mainLPiece[0]LHelper;
-	// LPiece mainLPiece[0], LShadow[0], LTile[0];
-	// LPiece mainLPiece[1], LShadow[1], LTile[1];
 	
 	LPiece[] mainLPiece = new LPiece[2];
 	LPiece[] LShadow = new LPiece[2];
@@ -137,27 +133,11 @@ public class GridPanel extends JPanel implements MouseMotionListener, MouseListe
 			}
 		}
 		
-		
-		// for (int i = 0; i < 2; i++) {
-			
-		// }
-		// if (nCanMove[0]) {
-			// nTile[0].paintComponent(g2d);
-			// nShadow[0].paintComponent(g2d);
-		// }
-		// mainNPiece[0].paintComponent(g2d);
-		
-		// g2d.setColor(Color.BLACK);
-		// g2d.draw(mainLPiece[0].getBoundingBox());
     }
 	
 	// Used mouse events
 	public void mouseMoved(MouseEvent e) 
 	{
-		
-		// mainLPiece[i].translateTo(e.getX() - mainLPiece[i].getCenterX(), e.getY() - mainLPiece[i].getCenterY());
-		// LShadow[i].translateTo(mainLPiece[i].getX() + shadowDepth, mainLPiece[i].getY() - shadowDepth);
-		
 		System.out.println(e.getX() + " " + e.getY());
 		for (int i = 0; i < 2; i++) {
 			// for each LPiece

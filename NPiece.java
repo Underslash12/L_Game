@@ -2,12 +2,11 @@
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
-// import java.awt.geom.Point2D.Double;
 import java.awt.geom.Rectangle2D;
-// import java.awt.geom.Rectangle2D.Double;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 
-public class NPiece {
+public class NPiece implements Piece {
 
 	private Rectangle2D[] rects = new Rectangle2D[2];
 	private Color mainColor, secondaryColor;
@@ -71,6 +70,11 @@ public class NPiece {
 		return mainColor;
 	}
 	
+	public Rectangle2D getBoundingBox ()
+	{
+		return rects[0];
+	}
+	
 	public boolean contains (double x, double y)
 	{
 		for (Rectangle2D r : rects) {
@@ -81,9 +85,23 @@ public class NPiece {
 		return false;
 	}
 	
-	public boolean intersects (NPiece p)
+	public ArrayList<Point2D> getCenters ()
 	{
-		return p.contains(getCenterX(), getCenterY());
+		ArrayList<Point2D> centers = new ArrayList<Point2D>();
+		centers.add(new Point2D.Double(getCenterX(), getCenterY()));
+		return centers;
+	}
+	
+	// same in LPiece
+	public boolean intersects (Piece p)
+	{
+		boolean intersects = false;
+		for (Point2D p2d : p.getCenters()) {
+			if (contains(p2d.getX(), p2d.getY())) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public void translate (double dx, double dy)
@@ -136,5 +154,6 @@ public class NPiece {
 		}
 	}
 	
-	// public int[]
+	public void flip () {}
+	public void rotate90 (int times) {}
 }
