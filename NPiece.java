@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 public class NPiece implements Piece {
 
+	// private Rectangle2D boundingRect;
 	private Rectangle2D[] rects = new Rectangle2D[2];
 	private Color mainColor, secondaryColor;
 	private double scale;
@@ -17,8 +18,9 @@ public class NPiece implements Piece {
 
 	public NPiece (double x, double y, double scale, Color c)
 	{
-		rects[0] = new Rectangle2D.Double(x, y, 109, 109);
-		rects[1] = new Rectangle2D.Double(x + 10, y + 10, 89, 89);
+		// boundingRect = new Rectangle2D.Double(x, y, 129, 129);
+		rects[0] = new Rectangle2D.Double(x + 10, y + 10, 109, 109);
+		rects[1] = new Rectangle2D.Double(x + 20, y + 20, 89, 89);
 		// rects[2] = new Rectangle2D.Double(x + 20, y + 20, 79, 79);
 		
 		// mainColor = Color.GRAY;
@@ -37,32 +39,32 @@ public class NPiece implements Piece {
 	
 	public double getX () 
 	{
-		return rects[0].getX();
+		return rects[0].getX() - 10;
 	}
 	
 	public double getY () 
 	{
-		return rects[0].getY();
+		return rects[0].getY() - 10;
 	}
 	
 	public double getWidth ()
 	{
-		return rects[0].getWidth();
+		return rects[0].getWidth() + 20;
 	}
 	
 	public double getHeight ()
 	{
-		return rects[0].getHeight();
+		return rects[0].getHeight() + 20;
 	}
 	
 	public double getCenterX ()
 	{
-		return rects[0].getWidth() / 2 + getX();
+		return getWidth() / 2 + getX();
 	}
 	
 	public double getCenterY ()
 	{
-		return rects[0].getHeight() / 2 + getY();
+		return getHeight() / 2 + getY();
 	}
 	
 	public Color getColor ()
@@ -72,7 +74,8 @@ public class NPiece implements Piece {
 	
 	public Rectangle2D getBoundingBox ()
 	{
-		return rects[0];
+		// return rects[0];
+		return new Rectangle2D.Double(getX(), getY(), getWidth(), getHeight());
 	}
 	
 	public boolean contains (double x, double y)
@@ -118,8 +121,8 @@ public class NPiece implements Piece {
 	
 	public void translateTo (double x, double y)
 	{
-		double initx = rects[0].getX();
-		double inity = rects[0].getY();
+		double initx = getX();
+		double inity = getY();
 		for (int i = 0; i < rects.length; i++) {
 			rects[i] = new Rectangle2D.Double(
 				rects[i].getX() - initx + x, 
